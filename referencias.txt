@@ -1,0 +1,6 @@
+referencias
+
+https://www.geeksforgeeks.org/cerr-standard-error-stream-object-in-cpp/
+
+https://en.cppreference.com/w/cpp/io/cerr
+
