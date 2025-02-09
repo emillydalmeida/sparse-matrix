@@ -1,5 +1,3 @@
-// NOME: EMILLY EFANNY DANTAS DE ALMEIDA, MATRICULA: 514672
-
 #include <iostream>
 #include <fstream>
 #include <vector>
