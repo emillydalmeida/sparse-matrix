@@ -1,3 +1,5 @@
+// NOME: EMILLY EFANNY DANTAS DE ALMEIDA, MATRICULA: 514672
+
 #ifndef SPARSE_MATRIX_H
 #define SPARSE_MATRIX_H
 #include <iostream>
@@ -42,8 +44,6 @@ public:
         }
         atualColuna->direita = sentinela;
         atualColuna->abaixo = atualColuna;
-
-        std::cout << "Construtor: Matriz esparsa inicializada com sucesso." << std::endl;
     }
 
     // destrutor: libera toda a memoria alocada dinamicamente
@@ -63,6 +63,122 @@ public:
         delete sentinela;
     }
 
+    // construtor de cópia
+    SparseMatrix(const SparseMatrix& copia) {
+        linha = copia.linha;
+        coluna = copia.coluna;
+
+        sentinela = new Node(0, 0, 0, nullptr, nullptr);
+        sentinela->abaixo = sentinela;
+        sentinela->direita = sentinela;
+
+        Node* atualLinha = sentinela;
+        Node* copiaLinha = copia.sentinela->abaixo;
+
+        // copia a estrutura das linhas da matriz original
+        while (copiaLinha != copia.sentinela) {
+            Node* novaLinha = new Node(copiaLinha->linha, 0, 0, nullptr, nullptr);
+            novaLinha->abaixo = sentinela;
+            atualLinha->abaixo = novaLinha;
+            atualLinha = novaLinha;
+            atualLinha->direita = atualLinha; // inicialmente, a linha está vazia
+
+            copiaLinha = copiaLinha->abaixo; // avança para a próxima linha na matriz original
+        }
+
+        Node* atualColuna = sentinela;
+        Node* copiaColuna = copia.sentinela->direita;
+
+        while (copiaColuna != copia.sentinela) {
+            Node* novaColuna = new Node(0, copiaColuna->coluna, 0, nullptr, nullptr);
+            novaColuna->direita = sentinela;
+            atualColuna->direita = novaColuna;
+            atualColuna = novaColuna;
+            atualColuna->abaixo = atualColuna; // inicialmente, a coluna está vazia
+
+            copiaColuna = copiaColuna->direita; // avança para a próxima coluna na matriz original
+        }
+
+        copiaLinha = copia.sentinela->abaixo; // percorre novamente a matriz original para copiar os elementos
+
+        while (copiaLinha != copia.sentinela) {
+            Node* copiaAtual = copiaLinha->direita;
+
+            while (copiaAtual != copiaLinha) {
+                // insere o valor copiado na nova matriz
+                insert(copiaAtual->linha, copiaAtual->coluna, copiaAtual->valor);
+                copiaAtual = copiaAtual->direita; // avança para o próximo elemento na linha
+            }
+
+            copiaLinha = copiaLinha->abaixo; // avança para a próxima linha na matriz original
+        }
+    }
+
+    SparseMatrix& operator=(const SparseMatrix& copia) {
+        // verifica se a matriz está sendo atribuída a si mesma (auto-atribuição)
+        if (this == &copia) {
+            return *this;
+        }
+
+        // libera a memória da matriz atual
+        this->~SparseMatrix();
+
+        linha = copia.linha;
+        coluna = copia.coluna;
+
+        sentinela = new Node(0, 0, 0, nullptr, nullptr);
+        sentinela->abaixo = sentinela;
+        sentinela->direita = sentinela;
+
+        Node* atualLinha = sentinela;
+        Node* copiaLinha = copia.sentinela->abaixo;
+
+        // copia a estrutura das linhas da matriz original
+        while (copiaLinha != copia.sentinela) {
+            Node* novaLinha = new Node(copiaLinha->linha, 0, 0, nullptr, nullptr);
+            novaLinha->abaixo = sentinela; // conecta a nova linha ao sentinela
+            atualLinha->abaixo = novaLinha;
+            atualLinha = novaLinha; // atualiza os ponteiros para continuar a iteração
+            atualLinha->direita = atualLinha;
+
+            copiaLinha = copiaLinha->abaixo; // avança para a próxima linha na matriz original
+        }
+
+        Node* atualColuna = sentinela;
+        Node* copiaColuna = copia.sentinela->direita;
+
+        // copia a estrutura das colunas da matriz original
+        while (copiaColuna != copia.sentinela) {
+            Node* novaColuna = new Node(0, copiaColuna->coluna, 0, nullptr, nullptr);
+            novaColuna->direita = sentinela; // conecta a nova coluna ao sentinela
+            atualColuna->direita = novaColuna;
+            atualColuna = novaColuna; // atualiza os ponteiros para continuar a iteração
+            atualColuna->abaixo = atualColuna;
+
+            copiaColuna = copiaColuna->direita; // avança para a próxima coluna na matriz original
+        }
+
+        copiaLinha = copia.sentinela->abaixo; // percorre novamente a matriz original para copiar os elementos
+
+        while (copiaLinha != copia.sentinela) {
+            Node* copiaAtual = copiaLinha->direita;
+
+            while (copiaAtual != copiaLinha) {
+                insert(copiaAtual->linha, copiaAtual->coluna, copiaAtual->valor); // insere o valor copiado na nova matriz
+                copiaAtual = copiaAtual->direita; // avança para o próximo elemento na linha
+            }
+
+            copiaLinha = copiaLinha->abaixo; // avança para a próxima linha na matriz original
+        }
+        return *this; // retorna a referência para a própria matriz, permitindo chamadas encadeadas (ex: A = B = C;)
+    }
+
+    // métodos getters para acessar os atributos privados
+    int getLinha() const { return linha; }
+
+    int getColuna() const { return coluna; }
+
+    Node* getSentinela() const { return sentinela; }
 
     // faz o valor do nó (linha,coluna) ser igual a value
     void insert(int l, int c, double value) {
